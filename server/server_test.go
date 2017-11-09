@@ -16,12 +16,37 @@ import (
 	"github.com/containous/traefik/metrics"
 	"github.com/containous/traefik/middlewares"
 	"github.com/containous/traefik/testhelpers"
+	"github.com/containous/traefik/tls"
 	"github.com/containous/traefik/types"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/urfave/negroni"
 	"github.com/vulcand/oxy/roundrobin"
+)
+
+// LocalhostCert is a PEM-encoded TLS cert with SAN IPs
+// "127.0.0.1" and "[::1]", expiring at Jan 29 16:00:00 2084 GMT.
+// generated from src/crypto/tls:
+// go run generate_cert.go  --rsa-bits 1024 --host 127.0.0.1,::1,example.com --ca --start-date "Jan 1 00:00:00 1970" --duration=1000000h
+var (
+	localhostCert = tls.FileOrContent(`-----BEGIN CERTIFICATE-----
+MIICEzCCAXygAwIBAgIQMIMChMLGrR+QvmQvpwAU6zANBgkqhkiG9w0BAQsFADAS
+MRAwDgYDVQQKEwdBY21lIENvMCAXDTcwMDEwMTAwMDAwMFoYDzIwODQwMTI5MTYw
+MDAwWjASMRAwDgYDVQQKEwdBY21lIENvMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCB
+iQKBgQDuLnQAI3mDgey3VBzWnB2L39JUU4txjeVE6myuDqkM/uGlfjb9SjY1bIw4
+iA5sBBZzHi3z0h1YV8QPuxEbi4nW91IJm2gsvvZhIrCHS3l6afab4pZBl2+XsDul
+rKBxKKtD1rGxlG4LjncdabFn9gvLZad2bSysqz/qTAUStTvqJQIDAQABo2gwZjAO
+BgNVHQ8BAf8EBAMCAqQwEwYDVR0lBAwwCgYIKwYBBQUHAwEwDwYDVR0TAQH/BAUw
+AwEB/zAuBgNVHREEJzAlggtleGFtcGxlLmNvbYcEfwAAAYcQAAAAAAAAAAAAAAAA
+AAAAATANBgkqhkiG9w0BAQsFAAOBgQCEcetwO59EWk7WiJsG4x8SY+UIAA+flUI9
+tyC4lNhbcF2Idq9greZwbYCqTTTr2XiRNSMLCOjKyI7ukPoPjo16ocHj+P3vZGfs
+h1fIw3cSS2OolhloGw/XM6RWPWtPAlGykKLciQrBru5NAPvCMsb/I1DAceTiotQM
+fblo6RBxUQ==
+-----END CERTIFICATE-----`)
+
+	// LocalhostKey is the private key for localhostCert.
+	localhostKey = tls.FileOrContent(`REDACTED_SECRET`)
 )
 
 type testLoadBalancer struct{}
@@ -241,6 +266,15 @@ func TestServerLoadConfigHealthCheckOptions(t *testing.T) {
 								HealthCheck: healthCheck,
 							},
 						},
+						TLSConfiguration: []*tls.Configuration{
+							{
+								Certificate: &tls.Certificate{
+									CertFile: localhostCert,
+									KeyFile:  localhostKey,
+								},
+								EntryPoints: []string{"http"},
+							},
+						},
 					},
 				}
 
@@ -411,6 +445,15 @@ func TestServerLoadConfigEmptyBasicAuth(t *testing.T) {
 					LoadBalancer: &types.LoadBalancer{
 						Method: "Wrr",
 					},
+				},
+			},
+			TLSConfiguration: []*tls.Configuration{
+				{
+					Certificate: &tls.Certificate{
+						CertFile: localhostCert,
+						KeyFile:  localhostKey,
+					},
+					EntryPoints: []string{"http"},
 				},
 			},
 		},
