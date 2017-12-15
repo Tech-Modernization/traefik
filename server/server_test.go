@@ -904,15 +904,20 @@ func TestBuildEntryPointRedirect(t *testing.T) {
 		srcEntryPointName string
 		url               string
 		entryPoint        *configuration.EntryPoint
+		redirect          *types.Redirect
 		expectedURL       string
 	}{
 		{
 			desc:              "redirect regex",
 			srcEntryPointName: "http",
 			url:               "http://foo.com",
+			redirect: &types.Redirect{
+				Regex:       `^(?:http?:\/\/)(foo)(\.com)$`,
+				Replacement: "https://$1{{\"bar\"}}$2",
+			},
 			entryPoint: &configuration.EntryPoint{
 				Address: ":80",
-				Redirect: &configuration.Redirect{
+				Redirect: &types.Redirect{
 					Regex:       `^(?:http?:\/\/)(foo)(\.com)$`,
 					Replacement: "https://$1{{\"bar\"}}$2",
 				},
@@ -923,9 +928,12 @@ func TestBuildEntryPointRedirect(t *testing.T) {
 			desc:              "redirect entry point",
 			srcEntryPointName: "http",
 			url:               "http://foo:80",
+			redirect: &types.Redirect{
+				EntryPoint: "https",
+			},
 			entryPoint: &configuration.EntryPoint{
 				Address: ":80",
-				Redirect: &configuration.Redirect{
+				Redirect: &types.Redirect{
 					EntryPoint: "https",
 				},
 			},
@@ -935,9 +943,14 @@ func TestBuildEntryPointRedirect(t *testing.T) {
 			desc:              "redirect entry point with regex (ignored)",
 			srcEntryPointName: "http",
 			url:               "http://foo.com:80",
+			redirect: &types.Redirect{
+				EntryPoint:  "https",
+				Regex:       `^(?:http?:\/\/)(foo)(\.com)$`,
+				Replacement: "https://$1{{\"bar\"}}$2",
+			},
 			entryPoint: &configuration.EntryPoint{
 				Address: ":80",
-				Redirect: &configuration.Redirect{
+				Redirect: &types.Redirect{
 					EntryPoint:  "https",
 					Regex:       `^(?:http?:\/\/)(foo)(\.com)$`,
 					Replacement: "https://$1{{\"bar\"}}$2",
@@ -952,7 +965,7 @@ func TestBuildEntryPointRedirect(t *testing.T) {
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
-			rewrite, err := srv.buildEntryPointRedirect(test.srcEntryPointName, test.entryPoint)
+			rewrite, err := srv.buildRedirectHandler(test.srcEntryPointName, test.redirect)
 			require.NoError(t, err)
 
 			req := testhelpers.MustNewRequest(http.MethodGet, test.url, nil)
@@ -969,7 +982,7 @@ func TestBuildEntryPointRedirect(t *testing.T) {
 	}
 }
 
-func TestServerBuildRedirectRewrite(t *testing.T) {
+func TestServerBuildEntryPointRedirect(t *testing.T) {
 	srv := Server{
 		globalConfiguration: configuration.GlobalConfiguration{
 			EntryPoints: configuration.EntryPoints{
@@ -1008,7 +1021,7 @@ func TestServerBuildRedirectRewrite(t *testing.T) {
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
-			rewrite, err := srv.buildRedirectRewrite(test.srcEntryPointName, test.redirectEntryPoint)
+			rewrite, err := srv.buildEntryPointRedirect(test.srcEntryPointName, test.redirectEntryPoint)
 			if test.errorExpected {
 				require.Error(t, err)
 			} else {
