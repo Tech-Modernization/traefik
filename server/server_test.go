@@ -449,7 +449,7 @@ func TestServerLoadConfigHealthCheckOptions(t *testing.T) {
 								HealthCheck: healthCheck,
 							},
 						},
-						TLSConfiguration: []*tls.Configuration{
+						TLS: []*tls.Configuration{
 							{
 								Certificate: &tls.Certificate{
 									CertFile: localhostCert,
@@ -630,7 +630,7 @@ func TestServerLoadConfigEmptyBasicAuth(t *testing.T) {
 					},
 				},
 			},
-			TLSConfiguration: []*tls.Configuration{
+			TLS: []*tls.Configuration{
 				{
 					Certificate: &tls.Certificate{
 						CertFile: localhostCert,
