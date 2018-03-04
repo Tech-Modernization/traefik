@@ -258,3 +258,11 @@
   non-go = true
   go-tests = true
   unused-packages = true
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/Cimpress-MCP/go-jwks-api-auth"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/auth0/go-jwt-middleware"
