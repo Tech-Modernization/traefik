@@ -362,6 +362,7 @@ type Auth struct {
 	Basic       *Basic   `export:"true"`
 	Digest      *Digest  `export:"true"`
 	Forward     *Forward `export:"true"`
+	Jwt         *Jwt     `export:"true"`
 	HeaderField string   `export:"true"`
 }
 
@@ -385,6 +386,21 @@ type Forward struct {
 	Address            string     `description:"Authentication server address"`
 	TLS                *ClientTLS `description:"Enable TLS support" export:"true"`
 	TrustForwardHeader bool       `description:"Trust X-Forwarded-* headers" export:"true"`
+}
+
+// Jwt authentication
+type Jwt struct {
+	HS256 *HS256 `export:"true"`
+	RS256 *RS256 `export:"true"`
+}
+
+type HS256 struct {
+	ClientSecret string `description:"Client secret for HS256" export:"true"`
+}
+
+type RS256 struct {
+	JwksTargetIssuer   string `description:"Jwks target issuer for RS256" export:"true"`
+	JwksTargetAudience string `description:"Jwks target audience for RS256" export:"true"`
 }
 
 // CanonicalDomain returns a lower case domain with trim space
