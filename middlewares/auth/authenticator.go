@@ -56,7 +56,7 @@ func NewAuthenticator(authConfig *types.Auth, tracingMiddleware *tracing.Tracing
 		tracingAuthenticator.handler = createAuthForwardHandler(authConfig)
 		tracingAuthenticator.name = "Auth Forward"
 		tracingAuthenticator.clientSpanKind = true
-	} else if authConfig.Jwt != nil && ((authConfig.Jwt.HS256 != nil && authConfig.Jwt.HS256.ClientSecret != "") || (authConfig.Jwt.RS256 != nil && authConfig.Jwt.RS256.JwksTargetIssuer != "")) {
+	} else if authConfig.Jwt != nil && (authConfig.Jwt.Issuer != "" || authConfig.Jwt.JwksAddress != "" || authConfig.Jwt.ClientSecret != "" || authConfig.Jwt.CertFile != "") {
 		tracingAuthenticator.handler = createAuthJwtHandler(authConfig)
 		tracingAuthenticator.name = "Auth Jwt"
 		tracingAuthenticator.clientSpanKind = false
