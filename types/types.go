@@ -172,6 +172,10 @@ type Frontend struct {
 	PassTLSCert          bool                  `json:"passTLSCert,omitempty"`
 	Priority             int                   `json:"priority"`
 	BasicAuth            []string              `json:"basicAuth"`
+	JwtIssuer            string                `json:"jwtIssuer,omitempty"`
+	JwtAudience          string                `json:"jwtAudience,omitempty"`
+	JwtClientJwksAddress string                `json:"jwtJwksAddress,omitempty"`
+	JwtClientSecret      string                `json:"jwtClientSecret,omitempty"`
 	WhitelistSourceRange []string              `json:"whitelistSourceRange,omitempty"`
 	Headers              *Headers              `json:"headers,omitempty"`
 	Errors               map[string]*ErrorPage `json:"errors,omitempty"`
