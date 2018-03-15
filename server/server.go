@@ -31,6 +31,7 @@ import (
 	"github.com/containous/traefik/middlewares"
 	"github.com/containous/traefik/middlewares/accesslog"
 	mauth "github.com/containous/traefik/middlewares/auth"
+	mjwt "github.com/containous/traefik/middlewares/jwt"
 	"github.com/containous/traefik/middlewares/redirect"
 	"github.com/containous/traefik/middlewares/tracing"
 	"github.com/containous/traefik/provider"
@@ -1149,6 +1150,16 @@ func (s *Server) loadConfig(configurations types.Configurations, globalConfigura
 							log.Errorf("Error creating Auth: %s", err)
 						} else {
 							n.Use(s.wrapNegroniHandlerWithAccessLog(authMiddleware, fmt.Sprintf("Auth for %s", frontendName)))
+						}
+					}
+
+					if frontend.Jwt != nil && (frontend.Jwt.Issuer != "" || frontend.Jwt.Audience != "" || frontend.Jwt.JwksAddress != "" || frontend.Jwt.ClientSecret != "") {
+						jwtValidatorMiddleware, err := mjwt.NewJwtValidator(frontend.Jwt, s.tracingMiddleware)
+
+						if err != nil {
+							log.Errorf("Error creating Jwt Validator: %s", err)
+						} else {
+							n.Use(s.wrapNegroniHandlerWithAccessLog(jwtValidatorMiddleware.Handler, fmt.Sprintf("Jwt Validator for %s", frontendName)))
 						}
 					}
 
