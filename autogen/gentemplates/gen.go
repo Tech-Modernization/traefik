@@ -22,7 +22,6 @@ import (
 	"strings"
 	"time"
 )
-
 type asset struct {
 	bytes []byte
 	info  os.FileInfo
@@ -856,6 +855,11 @@ var _templatesKubernetesTmpl = []byte(`[backends]
     basicAuth = [{{range $frontend.BasicAuth }}
       "{{.}}",
       {{end}}]
+
+    jwtIssuer = "{{ $frontend.JwtIssuer }}"
+    jwtAudience = "{{ $frontend.JwtAudience }}"
+    jwtJwksAddress = "{{ $frontend.JwtClientJwksAddress }}"
+    jwtClientSecret = "{{ $frontend.JwtClientSecret }}"
 
     whitelistSourceRange = [{{range $frontend.WhitelistSourceRange }}
       "{{.}}",
@@ -1833,15 +1837,15 @@ func AssetNames() []string {
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
 	"templates/consul_catalog.tmpl": templatesConsul_catalogTmpl,
-	"templates/docker.tmpl":         templatesDockerTmpl,
-	"templates/ecs.tmpl":            templatesEcsTmpl,
-	"templates/eureka.tmpl":         templatesEurekaTmpl,
-	"templates/kubernetes.tmpl":     templatesKubernetesTmpl,
-	"templates/kv.tmpl":             templatesKvTmpl,
-	"templates/marathon.tmpl":       templatesMarathonTmpl,
-	"templates/mesos.tmpl":          templatesMesosTmpl,
-	"templates/notFound.tmpl":       templatesNotfoundTmpl,
-	"templates/rancher.tmpl":        templatesRancherTmpl,
+	"templates/docker.tmpl": templatesDockerTmpl,
+	"templates/ecs.tmpl": templatesEcsTmpl,
+	"templates/eureka.tmpl": templatesEurekaTmpl,
+	"templates/kubernetes.tmpl": templatesKubernetesTmpl,
+	"templates/kv.tmpl": templatesKvTmpl,
+	"templates/marathon.tmpl": templatesMarathonTmpl,
+	"templates/mesos.tmpl": templatesMesosTmpl,
+	"templates/notFound.tmpl": templatesNotfoundTmpl,
+	"templates/rancher.tmpl": templatesRancherTmpl,
 }
 
 // AssetDir returns the file names below a certain
@@ -1883,19 +1887,18 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
-
 var _bintree = &bintree{nil, map[string]*bintree{
-	"templates": {nil, map[string]*bintree{
-		"consul_catalog.tmpl": {templatesConsul_catalogTmpl, map[string]*bintree{}},
-		"docker.tmpl":         {templatesDockerTmpl, map[string]*bintree{}},
-		"ecs.tmpl":            {templatesEcsTmpl, map[string]*bintree{}},
-		"eureka.tmpl":         {templatesEurekaTmpl, map[string]*bintree{}},
-		"kubernetes.tmpl":     {templatesKubernetesTmpl, map[string]*bintree{}},
-		"kv.tmpl":             {templatesKvTmpl, map[string]*bintree{}},
-		"marathon.tmpl":       {templatesMarathonTmpl, map[string]*bintree{}},
-		"mesos.tmpl":          {templatesMesosTmpl, map[string]*bintree{}},
-		"notFound.tmpl":       {templatesNotfoundTmpl, map[string]*bintree{}},
-		"rancher.tmpl":        {templatesRancherTmpl, map[string]*bintree{}},
+	"templates": &bintree{nil, map[string]*bintree{
+		"consul_catalog.tmpl": &bintree{templatesConsul_catalogTmpl, map[string]*bintree{}},
+		"docker.tmpl": &bintree{templatesDockerTmpl, map[string]*bintree{}},
+		"ecs.tmpl": &bintree{templatesEcsTmpl, map[string]*bintree{}},
+		"eureka.tmpl": &bintree{templatesEurekaTmpl, map[string]*bintree{}},
+		"kubernetes.tmpl": &bintree{templatesKubernetesTmpl, map[string]*bintree{}},
+		"kv.tmpl": &bintree{templatesKvTmpl, map[string]*bintree{}},
+		"marathon.tmpl": &bintree{templatesMarathonTmpl, map[string]*bintree{}},
+		"mesos.tmpl": &bintree{templatesMesosTmpl, map[string]*bintree{}},
+		"notFound.tmpl": &bintree{templatesNotfoundTmpl, map[string]*bintree{}},
+		"rancher.tmpl": &bintree{templatesRancherTmpl, map[string]*bintree{}},
 	}},
 }}
 
@@ -1945,3 +1948,4 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
+
